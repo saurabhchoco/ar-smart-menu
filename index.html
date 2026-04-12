@@ -4,26 +4,120 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/ar.js"></script>
+
+  <style>
+    body { margin: 0; overflow: hidden; font-family: Arial; }
+
+    .menu-ui {
+      position: fixed;
+      bottom: 20px;
+      width: 100%;
+      text-align: center;
+      z-index: 10;
+    }
+
+    .menu-ui button {
+      padding: 10px 15px;
+      margin: 5px;
+      border: none;
+      border-radius: 8px;
+      background: black;
+      color: white;
+      font-size: 14px;
+    }
+
+    .title {
+      position: fixed;
+      top: 20px;
+      width: 100%;
+      text-align: center;
+      color: white;
+      font-size: 20px;
+      z-index: 10;
+    }
+  </style>
 </head>
 
-<body style="margin:0; overflow:hidden;">
-  
-  <a-scene embedded arjs>
+<body>
+
+<div class="title">🍽️ AR Smart Menu</div>
+
+<div class="menu-ui">
+  <!-- <button onclick="changeModel('dosa.glb')">Dosa</button> -->
+  <button onclick="changeModel('chaat.glb')">Chaat</button>
+  <button onclick="changeModel('coffee.glb')">Coffee</button>
+  <button onclick="changeModel('vadapav.glb')">Vada Pav</button>
+</div>
+
+<a-scene embedded arjs>
+
+  <a-marker preset="hiro">
     
-    <!-- Marker -->
-    <a-marker preset="hiro">
-      
-      <!-- 3D Dish -->
-      <a-entity 
-        gltf-model="dish.glb"
-        scale="20 20 20"
-        position="0 0.5 0">
-      </a-entity>
+    <a-entity 
+      id="dish"
+      gltf-model="dosa.glb"
+      scale="20 20 20"
+      position="0 0.5 0"
+      rotation="0 0 0"
+      animation="property: rotation; to: 0 360 0; loop: true; dur: 8000">
+    </a-entity>
 
-    </a-marker>
+  </a-marker>
 
-    <a-entity camera></a-entity>
-  </a-scene>
+  <a-entity camera></a-entity>
+
+</a-scene>
+
+<script>
+  const model = document.querySelector('#dish');
+
+  // 🔄 Change Dish
+  function changeModel(modelName) {
+    model.setAttribute('gltf-model', modelName);
+  }
+
+  // 🤏 Pinch to Zoom
+  let initialDistance = null;
+
+  document.addEventListener("touchmove", function(e) {
+    if (e.touches.length === 2) {
+      let dx = e.touches[0].clientX - e.touches[1].clientX;
+      let dy = e.touches[0].clientY - e.touches[1].clientY;
+      let distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (!initialDistance) {
+        initialDistance = distance;
+      } else {
+        let scale = model.getAttribute('scale').x;
+        let newScale = scale + (distance - initialDistance) * 0.001;
+
+        newScale = Math.max(1, Math.min(newScale, 20)); // limit
+        model.setAttribute('scale', `${newScale} ${newScale} ${newScale}`);
+
+        initialDistance = distance;
+      }
+    }
+  });
+
+  document.addEventListener("touchend", () => {
+    initialDistance = null;
+  });
+
+  // 🔄 Rotate with Drag
+  let isDragging = false;
+
+  document.addEventListener("touchstart", () => isDragging = true);
+  document.addEventListener("touchend", () => isDragging = false);
+
+  document.addEventListener("touchmove", function(e) {
+    if (!isDragging || e.touches.length !== 1) return;
+
+    let rotation = model.getAttribute('rotation');
+    rotation.y += e.touches[0].movementX || 1;
+
+    model.setAttribute('rotation', rotation);
+  });
+</script>
 
 </body>
 </html>
