@@ -1,133 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/ar.js"></script>
-
-  <style>
-    body { margin: 0; overflow: hidden; font-family: Arial; }
-
-    .menu-ui {
-      position: fixed;
-      bottom: 20px;
-      width: 100%;
-      text-align: center;
-      z-index: 10;
-    }
-
-    .menu-ui button {
-      padding: 10px 15px;
-      margin: 5px;
-      border: none;
-      border-radius: 8px;
-      background: black;
-      color: white;
-      font-size: 14px;
-    }
-
-    .title {
-      position: fixed;
-      top: 20px;
-      width: 100%;
-      text-align: center;
-      color: white;
-      font-size: 20px;
-      z-index: 10;
-    }
-  </style>
+    <title>Smart Menu POC</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 </head>
+<body style="margin: 0; background: #fafafa;">
 
-<body>
+    <model-viewer 
+        src="pizza.glb" 
+        ar 
+        ar-modes="webxr scene-viewer quick-look" 
+        camera-controls 
+        shadow-intensity="1" 
+        auto-rotate 
+        style="width: 100%; height: 90vh;">
+        
+        <button slot="ar-button" style="background-color: white; border-radius: 4px; border: none; position: absolute; top: 16px; right: 16px; padding: 10px;">
+            👋 View in your space
+        </button>
+    </model-viewer>
 
-<div class="title">🍽️ AR Smart Menu</div>
-
-<div class="menu-ui">
-  <button onclick="changeModel('dosa.glb')">Dosa</button>
-  <button onclick="changeModel('dal.glb')">Dal Makhni</button>
-  <button onclick="changeModel('coffee.glb')">Coffee</button>
-  <button onclick="changeModel('burger.glb')">Burger</button>
-  <button onclick="changeModel('chaat.glb')">Chaat</button>
-</div>
-
-<a-scene embedded arjs>
-
-  <a-marker preset="hiro">
-    
-    <a-entity 
-      id="dish"
-      gltf-model="dosa.glb"
-      scale="1 1 1"
-      position="0 0.5 0"
-      rotation="0 0 0"
-      animation="property: rotation; to: 0 360 0; loop: true; dur: 8000">
-    </a-entity>
-
-  </a-marker>
-
-  <a-entity camera></a-entity>
-
-</a-scene>
-
-<script>
-  const model = document.querySelector('#dish');
-
-  // 🔄 Change Dish
-  function changeModel(modelName) {
-    // model.setAttribute('gltf-model', modelName);
-    const model = document.querySelector('#dish');
-
-    // Remove old model first (IMPORTANT)
-    model.removeAttribute('gltf-model');
-
-    // Force reload with slight delay
-    setTimeout(() => {
-      model.setAttribute('gltf-model', modelName);
-    }, 100);
-  }
-
-  // 🤏 Pinch to Zoom
-  let initialDistance = null;
-
-  document.addEventListener("touchmove", function(e) {
-    if (e.touches.length === 2) {
-      let dx = e.touches[0].clientX - e.touches[1].clientX;
-      let dy = e.touches[0].clientY - e.touches[1].clientY;
-      let distance = Math.sqrt(dx * dx + dy * dy);
-
-      if (!initialDistance) {
-        initialDistance = distance;
-      } else {
-        let scale = model.getAttribute('scale').x;
-        let newScale = scale + (distance - initialDistance) * 0.001;
-
-        newScale = Math.max(1, Math.min(newScale, 20)); // limit
-        model.setAttribute('scale', `${newScale} ${newScale} ${newScale}`);
-
-        initialDistance = distance;
-      }
-    }
-  });
-
-  document.addEventListener("touchend", () => {
-    initialDistance = null;
-  });
-
-  // 🔄 Rotate with Drag
-  let isDragging = false;
-
-  document.addEventListener("touchstart", () => isDragging = true);
-  document.addEventListener("touchend", () => isDragging = false);
-
-  document.addEventListener("touchmove", function(e) {
-    if (!isDragging || e.touches.length !== 1) return;
-
-    let rotation = model.getAttribute('rotation');
-    rotation.y += e.touches[0].movementX || 1;
-
-    model.setAttribute('rotation', rotation);
-  });
-</script>
+    <div style="text-align: center; font-family: sans-serif; padding: 10px;">
+        <h2>Signature Dish</h2>
+        <p>Freshly prepared - 100% Organic</p>
+    </div>
 
 </body>
 </html>
