@@ -3,72 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Strategic AR Menu | Nutrient-Aware</title>
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+    <title>Smart AR Menu</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
-        :root { --glass: rgba(255, 255, 255, 0.75); --blur: blur(12px); }
-        body { font-family: 'Inter', sans-serif; background: #fafafa; margin: 0; }
-        
-        /* High-end Frosted Glass Overlays */
-        .hotspot {
-            background: #fff; border-radius: 50%; width: 20px; height: 20px;
-            border: 2px solid #000; box-shadow: 0 0 10px rgba(0,0,0,0.2);
-            cursor: pointer; transition: transform 0.3s;
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; background: #fdfdfd; color: #333; }
+        header { padding: 20px; text-align: center; border-bottom: 1px solid #eee; background: #fff; }
+        .menu-container { display: grid; grid-template-columns: 1fr; gap: 20px; padding: 20px; max-width: 600px; margin: auto; }
+        .menu-item { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #eee; }
+        model-viewer { width: 100%; height: 250px; background-color: #fafafa; }
+        .details { padding: 15px; position: relative; }
+        h3 { margin: 0 0 5px 0; font-size: 18px; }
+        p { margin: 0; font-size: 14px; color: #666; }
+        .ar-button { 
+            position: absolute; right: 15px; top: 15px; 
+            background: #000; color: #fff; border: none; 
+            padding: 8px 12px; border-radius: 20px; font-size: 12px; cursor: pointer;
         }
-        .hotspot:not([data-visible]) { opacity: 0; pointer-events: none; }
-        .hotspot:hover { transform: scale(1.2); }
-
-        .annotation {
-            background: var(--glass); backdrop-filter: var(--blur);
-            -webkit-backdrop-filter: var(--blur);
-            border-radius: 12px; padding: 12px; border: 1px solid rgba(255,255,255,0.3);
-            width: 150px; position: absolute; top: 30px; left: -65px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1); font-size: 13px; line-height: 1.4;
-        }
-
-        /* Layout Styling */
-        .menu-grid { padding: 20px; display: flex; flex-direction: column; gap: 40px; }
-        model-viewer { width: 100%; height: 400px; border-radius: 20px; background: #eee; }
     </style>
 </head>
 <body>
 
-<div class="menu-grid">
-    <div class="card">
-        <model-viewer id="sandwich" src="burger.glb" ar ar-modes="webxr scene-viewer" camera-controls shadow-intensity="1">
-            
-            <button class="hotspot" slot="hotspot-bread" data-position="0m 0.15m 0.05m" data-normal="0m 1m 0m">
-                <div class="annotation">
-                    <strong>Artisan Sourdough</strong><br>
-                    <span>Gluten: High | 120 kcal<br>Stone-baked.</span>
-                </div>
-            </button>
+<header>
+    <h1 style="font-weight: 300; letter-spacing: 1px;">THE SMART MENU</h1>
+</header>
 
-            <button class="hotspot" slot="hotspot-avocado" data-position="0m 0.08m 0m" data-normal="0m 1m 0m">
-                <div class="annotation">
-                    <strong>Fresh Avocado</strong><br>
-                    <span>Fats: Healthy | 80 kcal<br>Sourced from Mexico.</span>
-                </div>
-            </button>
+<div class="menu-container">
 
-            <button slot="ar-button" style="background: black; color: white; border: none; padding: 10px 20px; border-radius: 30px; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);">
-                View in 3D Space
-            </button>
-        </model-viewer>
-        <h2 style="text-align:center; font-weight: 300;">Signature Sandwich</h2>
+    <div class="menu-item">
+        <model-viewer src="pizza.glb" ar ar-modes="webxr scene-viewer quick-look" camera-controls shadow-intensity="1" auto-rotate></model-viewer>
+        <div class="details">
+            <h3>Artisan Margherita</h3>
+            <p>Fresh mozzarella, basil, San Marzano tomatoes.</p>
+        </div>
     </div>
-</div>
 
-<script>
-    // In WebXR mode (Android/Chrome 2026), this allows placing the same model multiple times 
-    // to simulate a "set table" effect if the user taps multiple spots.
-    const viewer = document.querySelector('#sandwich');
-    viewer.addEventListener('ar-status', (event) => {
-        if(event.detail.status === 'session-started') {
-            console.log("Strategic Partner AR Session Active");
-        }
-    });
-</script>
+    <div class="menu-item">
+        <model-viewer src="burger.glb" ar ar-modes="webxr scene-viewer quick-look" camera-controls shadow-intensity="1" auto-rotate></model-viewer>
+        <div class="details">
+            <h3>Signature Burger</h3>
+            <p>Brioche bun, aged cheddar, truffle aioli.</p>
+        </div>
+    </div>
+
+    <div class="menu-item">
+        <model-viewer src="chaat.glb" ar ar-modes="webxr scene-viewer quick-look" camera-controls shadow-intensity="1" auto-rotate></model-viewer>
+        <div class="details">
+            <h3>Delhi Chaat</h3>
+            <p>Chaat</p>
+        </div>
+    </div>
+
+</div>
 
 </body>
 </html>
