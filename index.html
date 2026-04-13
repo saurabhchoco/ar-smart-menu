@@ -3,83 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Strategic AR Menu | Multi-Item & Nutrient-Aware</title>
+    <title>Smart AR Menu | Premium POC</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <style>
-        :root { --glass: rgba(255, 255, 255, 0.8); --blur: blur(15px); }
-        body { font-family: -apple-system, sans-serif; background: #f4f4f7; margin: 0; padding-bottom: 50px; }
-        
-        header { padding: 40px 20px; text-align: center; }
-        header h1 { font-weight: 200; letter-spacing: 5px; font-size: 20px; text-transform: uppercase; }
-
-        .menu-container { display: grid; gap: 30px; padding: 0 20px; max-width: 500px; margin: auto; }
-        .menu-item { background: #fff; border-radius: 30px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-
-        model-viewer { width: 100%; height: 380px; background: radial-gradient(#ffffff, #ececec); }
-
-        /* High-End Frosted Glass Nutrient Cards */
-        .hotspot {
-            background: #fff; border: 2px solid #000; border-radius: 50%; width: 20px; height: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.3); cursor: pointer;
-        }
-        .hotspot:not([data-visible]) { opacity: 0; pointer-events: none; }
-
-        .annotation {
-            background: var(--glass); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
-            border-radius: 15px; padding: 12px; border: 1px solid rgba(255,255,255,0.4);
-            width: 140px; position: absolute; top: 30px; left: -60px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1); font-size: 12px; line-height: 1.4;
+        :root {
+            --primary: #000000;
+            --glass: rgba(255, 255, 255, 0.7);
+            --border: rgba(255, 255, 255, 0.4);
         }
 
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            margin: 0; 
+            background-color: #f4f4f7; 
+            color: #1d1d1f; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        header { 
+            padding: 30px 20px; 
+            text-align: center; 
+            background: transparent;
+        }
+
+        header h1 {
+            font-weight: 200;
+            letter-spacing: 4px;
+            font-size: 24px;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .menu-container { 
+            display: grid; 
+            grid-template-columns: 1fr; 
+            gap: 25px; 
+            padding: 0 20px 50px 20px; 
+            max-width: 500px; 
+            margin: auto; 
+        }
+
+        .menu-item { 
+            background: var(--glass); 
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 32px; 
+            overflow: hidden; 
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+            transition: transform 0.3s ease;
+        }
+
+        model-viewer { 
+            width: 100%; 
+            height: 320px; 
+            background-color: transparent; 
+            --poster-color: transparent;
+        }
+
+        .details { 
+            padding: 24px; 
+            background: #ffffff;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .category-tag {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        h3 { 
+            margin: 0 0 8px 0; 
+            font-size: 20px; 
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        p { 
+            margin: 0; 
+            font-size: 15px; 
+            color: #636366; 
+            line-height: 1.5;
+        }
+
+        /* Custom AR Button Branding */
         .ar-button { 
-            background: #000; color: #fff; border: none; padding: 14px 28px; border-radius: 50px; 
-            font-size: 13px; font-weight: 600; position: absolute; bottom: 20px; left: 50%; 
-            transform: translateX(-50%); box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            background: var(--primary); 
+            color: #fff; 
+            border: none; 
+            padding: 12px 24px; 
+            border-radius: 50px; 
+            font-size: 13px; 
+            font-weight: 600;
+            cursor: pointer;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
 
-        .details { padding: 25px; text-align: left; }
-        .price-tag { font-size: 22px; font-weight: 700; color: #000; float: right; }
-        h3 { margin: 0; font-size: 22px; font-weight: 600; }
-        p { margin: 10px 0; font-size: 14px; color: #666; }
+        /* Progress Bar Styling */
+        .progress-bar { display: block; width: 33%; height: 4px; background: rgba(0, 0, 0, 0.1); border-radius: 2px; margin-top: 150px; margin-left: auto; margin-right: auto; }
+        .update-bar { background-color: var(--primary); width: 0%; height: 100%; border-radius: 2px; transition: width 0.3s; }
+
     </style>
 </head>
 <body>
 
-<header><h1>The Smart Menu</h1></header>
+<header>
+    <h1>The Smart Menu</h1>
+</header>
 
 <div class="menu-container">
-    <div class="menu-item">
-        <model-viewer id="pizza" src="pizza.glb" ar ar-modes="webxr scene-viewer quick-look" ar-placement="floor" camera-controls shadow-intensity="1.5" environment-image="neutral" exposure="1.2">
-            
-            <button class="hotspot" slot="hotspot-calories" data-position="0.2104228638946526m 0.08752724451802646m 0.2643950296562543m" data-normal="0m 1m 0m">
-                <div class="annotation">
-                    <strong>Nutritional Info</strong><br>
-                    <span>650 kcal | 22g Protein<br>Fresh Sourdough Base</span>
-                </div>
-            </button>
 
-            <button slot="ar-button" class="ar-button">PLACE ON TABLE</button>
+    <div class="menu-item">
+        <model-viewer src="pizza.glb" 
+            ar ar-modes="webxr scene-viewer quick-look" 
+            camera-controls 
+            auto-rotate 
+            shadow-intensity="1.5" 
+            shadow-softness="1"
+            exposure="1.2"
+            environment-image="neutral"
+            alt="Artisan Pizza 3D Model">
+            <button slot="ar-button" class="ar-button">VIEW ON TABLE</button>
+            <div class="progress-bar" slot="progress-bar"><div class="update-bar"></div></div>
         </model-viewer>
         <div class="details">
-            <span class="price-tag">₹545</span>
-            <h3>Artisan Pizza</h3>
-            <p>Hand-stretched dough with San Marzano sauce.</p>
+            <span class="category-tag">Signature Pizza</span>
+            <h3>Artisan Margherita</h3>
+            <p>Fresh mozzarella, basil, and San Marzano tomatoes on hand-stretched dough.</p>
         </div>
     </div>
-</div>
 
-<script>
-    // SIMULATED BURST EFFECT
-    // When the user taps the model, it scales up and down quickly
-    const modelViewer = document.querySelector('#pizza');
-    modelViewer.addEventListener('click', () => {
-        modelViewer.style.transition = "transform 0.1s ease-out";
-        modelViewer.style.transform = "scale(1.05)";
-        setTimeout(() => {
-            modelViewer.style.transform = "scale(1)";
-        }, 100);
-    });
-</script>
+    <div class="menu-item">
+        <model-viewer src="burger.glb" 
+            ar ar-modes="webxr scene-viewer quick-look" 
+            camera-controls 
+            auto-rotate 
+            shadow-intensity="1.5"
+            shadow-softness="1"
+            exposure="1.2"
+            environment-image="neutral"
+            alt="Signature Burger 3D Model">
+            <button slot="ar-button" class="ar-button">VIEW ON TABLE</button>
+            <div class="progress-bar" slot="progress-bar"><div class="update-bar"></div></div>
+        </model-viewer>
+        <div class="details">
+            <span class="category-tag">Gourmet Burger</span>
+            <h3>Signature Burger</h3>
+            <p>Aged cheddar and truffle aioli on a toasted brioche bun.</p>
+        </div>
+    </div>
+
+    <div class="menu-item">
+        <model-viewer src="chaat.glb" 
+            ar ar-modes="webxr scene-viewer quick-look" 
+            camera-controls 
+            auto-rotate 
+            shadow-intensity="1.5"
+            shadow-softness="1"
+            exposure="1.2"
+            environment-image="neutral"
+            alt="Delhi Chaat 3D Model">
+            <button slot="ar-button" class="ar-button">VIEW ON TABLE</button>
+            <div class="progress-bar" slot="progress-bar"><div class="update-bar"></div></div>
+        </model-viewer>
+        <div class="details">
+            <span class="category-tag">Street Food</span>
+            <h3>Delhi Chaat</h3>
+            <p>A vibrant, textured medley of spices, chutneys, and savory crunches.</p>
+        </div>
+    </div>
+
+</div>
 
 </body>
 </html>
