@@ -1,29 +1,59 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Smart Menu POC</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart AR Menu</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; background: #fdfdfd; color: #333; }
+        header { padding: 20px; text-align: center; border-bottom: 1px solid #eee; background: #fff; }
+        .menu-container { display: grid; grid-template-columns: 1fr; gap: 20px; padding: 20px; max-width: 600px; margin: auto; }
+        .menu-item { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #eee; }
+        model-viewer { width: 100%; height: 250px; background-color: #fafafa; }
+        .details { padding: 15px; position: relative; }
+        h3 { margin: 0 0 5px 0; font-size: 18px; }
+        p { margin: 0; font-size: 14px; color: #666; }
+        .ar-button { 
+            position: absolute; right: 15px; top: 15px; 
+            background: #000; color: #fff; border: none; 
+            padding: 8px 12px; border-radius: 20px; font-size: 12px; cursor: pointer;
+        }
+    </style>
 </head>
-<body style="margin: 0; background: #fafafa;">
+<body>
 
-    <model-viewer 
-        src="pizza.glb" 
-        ar 
-        ar-modes="webxr scene-viewer quick-look" 
-        camera-controls 
-        shadow-intensity="1" 
-        auto-rotate 
-        style="width: 100%; height: 90vh;">
-        
-        <button slot="ar-button" style="background-color: white; border-radius: 4px; border: none; position: absolute; top: 16px; right: 16px; padding: 10px;">
-            👋 View in your space
-        </button>
-    </model-viewer>
+<header>
+    <h1 style="font-weight: 300; letter-spacing: 1px;">THE SMART MENU</h1>
+</header>
 
-    <div style="text-align: center; font-family: sans-serif; padding: 10px;">
-        <h2>Signature Dish</h2>
-        <p>Freshly prepared - 100% Organic</p>
+<div class="menu-container">
+
+    <div class="menu-item">
+        <model-viewer src="pizza.glb" ar ar-modes="webxr scene-viewer quick-look" camera-controls shadow-intensity="1" auto-rotate></model-viewer>
+        <div class="details">
+            <h3>Artisan Margherita</h3>
+            <p>Fresh mozzarella, basil, San Marzano tomatoes.</p>
+        </div>
     </div>
+
+    <div class="menu-item">
+        <model-viewer src="burger.glb" ar ar-modes="webxr scene-viewer quick-look" camera-controls shadow-intensity="1" auto-rotate></model-viewer>
+        <div class="details">
+            <h3>Signature Burger</h3>
+            <p>Brioche bun, aged cheddar, truffle aioli.</p>
+        </div>
+    </div>
+
+    <div class="menu-item">
+        <model-viewer src="chaat.glb" ar ar-modes="webxr scene-viewer quick-look" camera-controls shadow-intensity="1" auto-rotate></model-viewer>
+        <div class="details">
+            <h3>Delhi Chaat</h3>
+            <p>Chaat</p>
+        </div>
+    </div>
+
+</div>
 
 </body>
 </html>
