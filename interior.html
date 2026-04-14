@@ -1,107 +1,269 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Interior | RanShX</title>
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
-    <style>
-        :root { --primary: #000; --accent: #c5a059; --glass: rgba(255,255,255,0.8); }
-        body { font-family: -apple-system, sans-serif; margin: 0; background: #f4f4f7; padding-bottom: 100px; }
-        
-        header { padding: 30px; text-align: center; background: #fff; border-bottom: 1px solid #eee; }
-        header h1 { font-weight: 200; font-size: 20px; letter-spacing: 4px; text-transform: uppercase; margin: 0; }
-        
-        .container { display: grid; gap: 25px; padding: 20px; max-width: 500px; margin: auto; }
-        
-        .card { 
-            background: #fff; border-radius: 32px; overflow: hidden; 
-            border: 1px solid #eee; box-shadow: 0 15px 35px rgba(0,0,0,0.05);
-            position: relative;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Interior | RanShX</title>
 
-        model-viewer { width: 100%; height: 350px; background: #fdfdfd; }
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
 
-        .details { padding: 24px; }
-        .type-tag { font-size: 10px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
-        .title { font-size: 19px; font-weight: 600; margin: 5px 0; }
-        .specs { font-size: 13px; color: #777; margin-top: 8px; border-top: 1px solid #f9f9f9; padding-top: 12px; }
+<style>
+:root {
+  --primary:#000;
+  --accent:#c5a059;
+}
 
-        .ar-btn { 
-            background: var(--primary); color: #fff; border: none; padding: 14px 25px; 
-            border-radius: 50px; font-weight: 600; position: absolute; bottom: 20px; 
-            left: 50%; transform: translateX(-50%); font-size: 11px;
-        }
+body {
+  margin:0;
+  font-family:-apple-system, sans-serif;
+  background:#f4f4f7;
+}
 
-        /* Admin Drawer */
-        #admin { position: fixed; bottom: 0; width: 100%; background: #fff; z-index: 100; transform: translateY(85%); transition: 0.4s; box-shadow: 0 -10px 30px rgba(0,0,0,0.1); }
-        #admin.open { transform: translateY(0); }
-        .handle { background: #000; color: #fff; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; font-size: 12px; letter-spacing: 1px; }
-    </style>
+/* HEADER */
+header {
+  text-align:center;
+  padding:25px;
+  background:#fff;
+  border-bottom:1px solid #eee;
+}
+header h1 {
+  font-size:18px;
+  letter-spacing:3px;
+  font-weight:300;
+}
+
+/* GRID */
+.container {
+  max-width:500px;
+  margin:auto;
+  padding:20px;
+  display:grid;
+  gap:20px;
+}
+
+/* CARD */
+.card {
+  background:#fff;
+  border-radius:25px;
+  overflow:hidden;
+  box-shadow:0 15px 35px rgba(0,0,0,0.05);
+  position:relative;
+}
+
+model-viewer {
+  width:100%;
+  height:300px;
+  background:#fafafa;
+}
+
+.details {
+  padding:20px;
+}
+
+.title {
+  font-weight:600;
+  font-size:16px;
+}
+
+.specs {
+  font-size:13px;
+  color:#777;
+  margin-top:5px;
+}
+
+/* BUTTONS */
+.btn {
+  background:#000;
+  color:#fff;
+  border:none;
+  padding:10px 15px;
+  border-radius:20px;
+  font-size:12px;
+  margin-top:10px;
+}
+
+/* FLOATING LAYOUT BAR */
+.layout-bar {
+  position:fixed;
+  bottom:80px;
+  left:5%;
+  width:90%;
+  background:#fff;
+  border-radius:20px;
+  padding:15px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.1);
+  z-index:50;
+}
+
+.layout-bar span {
+  font-size:13px;
+}
+
+/* ADMIN */
+#admin {
+  position:fixed;
+  bottom:0;
+  width:100%;
+  background:#fff;
+  transform:translateY(85%);
+  transition:0.4s;
+  box-shadow:0 -10px 30px rgba(0,0,0,0.1);
+}
+#admin.open {
+  transform:translateY(0);
+}
+.handle {
+  background:#000;
+  color:#fff;
+  padding:12px;
+  text-align:center;
+  cursor:pointer;
+}
+
+input {
+  width:100%;
+  padding:10px;
+  margin-bottom:10px;
+  border-radius:10px;
+  border:1px solid #ddd;
+}
+</style>
 </head>
+
 <body>
 
-<header><h1>Interior Fit-out</h1></header>
+<header>
+  <h1>SMART INTERIOR</h1>
+</header>
 
-<div id="render-grid" class="container"></div>
+<div id="grid" class="container"></div>
 
+<!-- LAYOUT BAR -->
+<div class="layout-bar">
+  <span id="layout-count">0 items</span> |
+  <span id="layout-area">0 sqm</span>
+  <br><br>
+  <button class="btn" onclick="clearLayout()">Clear</button>
+</div>
+
+<!-- ADMIN PANEL -->
 <div id="admin">
-    <div class="handle" onclick="document.getElementById('admin').classList.toggle('open')">PROJECT INVENTORY (CRUD)</div>
-    <div style="padding: 20px; max-height: 60vh; overflow-y: auto;">
-        <div id="admin-list"></div>
-        <button onclick="addModule()" style="width:100%; padding:15px; background:var(--accent); color:#fff; border:none; border-radius:12px; font-weight:600;">+ Add Layout Module</button>
-    </div>
+  <div class="handle" onclick="toggleAdmin()">ADMIN PANEL</div>
+  <div style="padding:15px">
+
+    <input id="name" placeholder="Module Name">
+    <input id="dims" placeholder="Dimensions (e.g. 2000x1000)">
+    <input id="src" placeholder="GLB file (e.g. counter.glb)">
+
+    <button class="btn" onclick="addModule()">Add Module</button>
+
+    <div id="admin-list"></div>
+
+  </div>
 </div>
 
 <script>
-    let modules = JSON.parse(localStorage.getItem('interiorData')) || [
-        { id: 1, name: "Order Counter Module", type: "Front of House", dims: "2400mm x 900mm", src: "counter.glb" },
-        { id: 2, name: "Kitchen Island Unit", type: "Back of House", dims: "1800mm x 750mm", src: "kitchen.glb" }
-    ];
 
-    function render() {
-        const grid = document.getElementById('render-grid');
-        const list = document.getElementById('admin-list');
-        grid.innerHTML = ''; list.innerHTML = '';
+/* DATA */
+let modules = JSON.parse(localStorage.getItem('modules')) || [
+  { id:1, name:"Counter", dims:"2400x900", src:"counter.glb" },
+  { id:2, name:"Kitchen", dims:"1800x750", src:"kitchen.glb" }
+];
 
-        modules.forEach(m => {
-            grid.innerHTML += `
-                <div class="card">
-                    <model-viewer src="${m.src}" ar ar-placement="floor" camera-controls disable-zoom shadow-intensity="1">
-                        <button slot="ar-button" class="ar-btn">PLACE IN SPACE (1:1)</button>
-                    </model-viewer>
-                    <div class="details">
-                        <span class="type-tag">${m.type}</span>
-                        <div class="title">${m.name}</div>
-                        <div class="specs">Footprint: ${m.dims}</div>
-                    </div>
-                </div>
-            `;
-            list.innerHTML += `
-                <div style="display:flex; justify-content:space-between; padding: 12px 0; border-bottom: 1px solid #eee; align-items:center;">
-                    <span style="font-size:14px;">${m.name}</span>
-                    <button onclick="removeModule(${m.id})" style="color:red; background:none; border:none; font-weight:bold;">Remove</button>
-                </div>
-            `;
-        });
-        localStorage.setItem('interiorData', JSON.stringify(modules));
-    }
+let layout = JSON.parse(localStorage.getItem('layout')) || [];
 
-    function addModule() {
-        const name = prompt("Module Name:");
-        const file = prompt("GLB Filename (ensure 1:1 scale):");
-        if(name && file) {
-            modules.push({ id: Date.now(), name: name, type: "Custom", dims: "Auto-scaled", src: file });
-            render();
-        }
-    }
+/* RENDER */
+function render() {
+  const grid = document.getElementById('grid');
+  const adminList = document.getElementById('admin-list');
 
-    function removeModule(id) {
-        modules = modules.filter(m => m.id !== id);
-        render();
-    }
+  grid.innerHTML = '';
+  adminList.innerHTML = '';
 
+  modules.forEach(m => {
+
+    grid.innerHTML += `
+      <div class="card">
+        <model-viewer src="${m.src}" ar ar-placement="floor" camera-controls></model-viewer>
+        <div class="details">
+          <div class="title">${m.name}</div>
+          <div class="specs">${m.dims} mm</div>
+          <button class="btn" onclick="addToLayout(${m.id})">Add to Layout</button>
+        </div>
+      </div>
+    `;
+
+    adminList.innerHTML += `
+      <div style="display:flex; justify-content:space-between; margin-top:10px;">
+        <span>${m.name}</span>
+        <button onclick="deleteModule(${m.id})" style="color:red;border:none;background:none;">X</button>
+      </div>
+    `;
+  });
+
+  updateLayoutUI();
+
+  localStorage.setItem('modules', JSON.stringify(modules));
+}
+
+/* LAYOUT */
+function addToLayout(id) {
+  const mod = modules.find(m => m.id === id);
+  layout.push(mod);
+  localStorage.setItem('layout', JSON.stringify(layout));
+  updateLayoutUI();
+}
+
+function clearLayout() {
+  layout = [];
+  localStorage.setItem('layout', JSON.stringify(layout));
+  updateLayoutUI();
+}
+
+/* AREA CALCULATION */
+function updateLayoutUI() {
+  document.getElementById('layout-count').innerText = layout.length + " items";
+
+  let total = 0;
+
+  layout.forEach(m => {
+    let [w,h] = m.dims.split('x');
+    total += (w*h)/1000000;
+  });
+
+  document.getElementById('layout-area').innerText = total.toFixed(2) + " sqm";
+}
+
+/* ADMIN */
+function toggleAdmin() {
+  document.getElementById('admin').classList.toggle('open');
+}
+
+function addModule() {
+  const name = document.getElementById('name').value;
+  const dims = document.getElementById('dims').value;
+  const src = document.getElementById('src').value;
+
+  if(name && dims && src) {
+    modules.push({
+      id:Date.now(),
+      name,
+      dims,
+      src
+    });
     render();
+  }
+}
+
+function deleteModule(id) {
+  modules = modules.filter(m => m.id !== id);
+  render();
+}
+
+/* INIT */
+render();
+
 </script>
+
 </body>
 </html>
