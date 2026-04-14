@@ -67,35 +67,33 @@
         container.innerHTML = '';
         adminList.innerHTML = '';
 
+        // REPLACE your current renderMenu() loop with this logic for the hotspots
         menuData.forEach(item => {
-            // User Side
             const itemHTML = `
                 <div class="menu-item">
-                    <model-viewer src="${item.src}" ar ar-modes="webxr scene-viewer quick-look" camera-controls shadow-intensity="1" onclick="burstEffect(this)">
+                    <model-viewer id="mv-${item.id}" src="${item.src}" ar ar-modes="webxr scene-viewer quick-look" camera-controls shadow-intensity="1">
                         
-                        <button class="hotspot" slot="hotspot-${item.id}" data-position="${item.pos}" data-normal="0m 1m 0m" onclick="toggleHotspot(this, event)">
+                        <button class="hotspot" slot="hotspot-info-${item.id}" 
+                            data-position="${item.pos || '0.4640118053020139m 0.10915774910287235m -0.18077796088803133m'}" 
+                            data-normal="0m 1m 0m" 
+                            onclick="toggleHotspot(this, event)">
                             <div class="annotation">
                                 <strong>Nutritional Info</strong><br>
-                                <span>${item.kcal} kcal | Pure Ingredients</span>
+                                <span>${item.kcal} kcal | Verified</span>
                             </div>
                         </button>
 
                         <button slot="ar-button" class="ar-button">VIEW IN AR</button>
                     </model-viewer>
                     <div class="details">
-                        <div style="display:flex; justify-content:space-between"><strong>${item.name}</strong> <span>${item.price}</span></div>
+                        <div style="display:flex; justify-content:space-between">
+                            <strong>${item.name}</strong> 
+                            <span>${item.price}</span>
+                        </div>
                     </div>
                 </div>
             `;
             container.innerHTML += itemHTML;
-
-            // Admin Side
-            adminList.innerHTML += `
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center; border-bottom:1px solid #eee; padding-bottom:10px;">
-                    <span>${item.name}</span>
-                    <button onclick="deleteItem('${item.id}')" style="color:red; border:none; background:none;">Delete</button>
-                </div>
-            `;
         });
         localStorage.setItem('smartMenuData', JSON.stringify(menuData));
     }
