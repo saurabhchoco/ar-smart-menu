@@ -3,129 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RanShX | Spatial Layout Designer</title>
+    <title>RanShX | Spatial Designer Pro</title>
+    <script src="https://unpkg.com/interactjs/dist/interact.min.js"></script>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: sans-serif; }
-        
-        /* Live Camera Feed */
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; }
         #video-preview { position: fixed; top: 0; left: 0; min-width: 100%; min-height: 100%; z-index: 1; object-fit: cover; }
-
-        /* UI Overlay */
-        .overlay { position: fixed; z-index: 100; pointer-events: none; width: 100%; height: 100%; }
-        .controls { pointer-events: auto; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; }
-
+        
         .inventory {
-            pointer-events: auto; position: absolute; top: 20px; left: 0; width: 100%;
-            display: flex; gap: 10px; padding: 10px; overflow-x: auto; background: rgba(0,0,0,0.5);
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 100;
+            display: flex; gap: 15px; padding: 15px; overflow-x: auto;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(10px);
         }
 
         .item-thumb {
-            min-width: 70px; height: 70px; background: #fff; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center; font-size: 10px;
-            flex-direction: column; cursor: pointer; border: 2px solid transparent;
+            min-width: 90px; height: 100px; background: #fff; border-radius: 15px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: bold; cursor: pointer; flex-shrink: 0;
         }
-        .item-thumb img { width: 40px; height: 40px; object-fit: contain; }
+        .item-thumb img { width: 50px; height: 50px; object-fit: contain; margin-bottom: 5px; }
 
-        /* Draggable Elements */
         .placed-item {
-            position: absolute; z-index: 50; pointer-events: auto;
-            cursor: move; transform: translate(-50%, -50%);
-            touch-action: none; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.3));
+            position: absolute; z-index: 50; touch-action: none;
+            user-select: none; display: inline-block;
         }
-        .placed-item img { width: 150px; height: auto; pointer-events: none; }
+        .placed-item img { 
+            width: 250px; /* Default starting size */
+            display: block; 
+            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.5));
+        }
 
-        .btn { background: #fff; color: #000; border: none; padding: 15px 25px; border-radius: 30px; font-weight: bold; }
+        .controls {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            z-index: 100; display: flex; gap: 15px;
+        }
+        .btn { padding: 15px 30px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <video id="video-preview" autoplay playsinline></video>
 
-<div class="overlay">
-    <div class="inventory" id="inventory">
-        </div>
+<div class="inventory" id="inventory"></div>
 
-    <div class="controls">
-        <button class="btn" onclick="clearCanvas()">RESET ROOM</button>
-        <button class="btn" style="background:#c5a059" onclick="captureLayout()">FINALIZE PLAN</button>
-    </div>
+<div class="controls">
+    <button class="btn" style="background:#fff;" onclick="location.reload()">CLEAR ALL</button>
+    <button class="btn" style="background:#c5a059; color:#fff;" onclick="alert('Layout Saved')">SAVE PLAN</button>
 </div>
 
 <script>
-    const inventory = [
-        { name: "Counter", src: "https://cdn-icons-png.flaticon.com/512/2321/2321232.png" },
-        { name: "Table", src: "https://cdn-icons-png.flaticon.com/512/1663/1663954.png" },
-        { name: "Neon Wall", src: "https://cdn-icons-png.flaticon.com/512/1055/1055666.png" }
+    // High-Res Professional Assets (Placeholders - Swap with your Git links)
+    const assets = [
+        { name: "Counter", src: "https://i.ibb.co/vYf8m7y/counter-foh.png" },
+        { name: "Neon Wall", src: "https://i.ibb.co/D8R5B8Z/neon-branding.png" },
+        { name: "Bistro Table", src: "https://i.ibb.co/vX9Y6mY/table-set.png" },
+        { name: "Booth", src: "https://i.ibb.co/fD7p5XW/seating-booth.png" }
     ];
 
-    // Initialize Camera
-    async function startCamera() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-            document.getElementById('video-preview').srcObject = stream;
-        } catch (err) {
-            alert("Camera access required for Spatial Designing.");
-        }
+    async function initCamera() {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        document.getElementById('video-preview').srcObject = stream;
     }
 
-    // Build Inventory
-    const invEl = document.getElementById('inventory');
-    inventory.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'item-thumb';
-        div.innerHTML = `<img src="${item.src}"><span>${item.name}</span>`;
-        div.onclick = () => placeItem(item.src);
-        invEl.appendChild(div);
+    const inv = document.getElementById('inventory');
+    assets.forEach(asset => {
+        const el = document.createElement('div');
+        el.className = 'item-thumb';
+        el.innerHTML = `<img src="${asset.src}"><span>${asset.name}</span>`;
+        el.onclick = () => spawnItem(asset.src);
+        inv.appendChild(el);
     });
 
-    function placeItem(src) {
-        const item = document.createElement('div');
-        item.className = 'placed-item';
-        item.innerHTML = `<img src="${src}">`;
+    function spawnItem(src) {
+        const container = document.createElement('div');
+        container.className = 'placed-item';
+        container.style.left = '100px';
+        container.style.top = '200px';
         
-        // Initial Center Placement
-        item.style.left = '50%';
-        item.style.top = '50%';
-        
-        // Drag Logic
-        let active = false, currentX, currentY, initialX, initialY, xOffset = 0, yOffset = 0;
+        const img = document.createElement('img');
+        img.src = src;
+        container.appendChild(img);
+        document.body.appendChild(container);
 
-        item.addEventListener("touchstart", dragStart, false);
-        item.addEventListener("touchend", dragEnd, false);
-        item.addEventListener("touchmove", drag, false);
-
-        function dragStart(e) {
-            initialX = e.touches[0].clientX - xOffset;
-            initialY = e.touches[0].clientY - yOffset;
-            active = true;
-        }
-        function dragEnd() { active = false; }
-        function drag(e) {
-            if (active) {
-                e.preventDefault();
-                currentX = e.touches[0].clientX - initialX;
-                currentY = e.touches[0].clientY - initialY;
-                xOffset = currentX;
-                yOffset = currentY;
-                setTranslate(currentX, currentY, item);
-            }
-        }
-        function setTranslate(xPos, yPos, el) {
-            el.style.transform = `translate(calc(-50% + ${xPos}px), calc(-50% + ${yPos}px))`;
-        }
-
-        document.body.appendChild(item);
+        // Interact.js logic for Drag, Resize, and Rotate
+        let angle = 0;
+        interact(container)
+            .draggable({
+                onmove: (event) => {
+                    const target = event.target;
+                    const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                    const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+                    target.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
+                    target.setAttribute('data-x', x);
+                    target.setAttribute('data-y', y);
+                }
+            })
+            .gesturable({
+                onmove: (event) => {
+                    angle += event.da;
+                    const x = parseFloat(container.getAttribute('data-x')) || 0;
+                    const y = parseFloat(container.getAttribute('data-y')) || 0;
+                    const img = container.querySelector('img');
+                    const currentWidth = img.clientWidth;
+                    img.style.width = (currentWidth * (1 + event.ds / 50)) + 'px'; // Sensitive scaling
+                    container.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
+                }
+            });
+            
+        // Double tap to remove
+        container.addEventListener('dblclick', () => container.remove());
     }
 
-    function clearCanvas() {
-        document.querySelectorAll('.placed-item').forEach(el => el.remove());
-    }
-
-    function captureLayout() {
-        alert("Spatial configuration saved to RanShX Global dashboard.");
-    }
-
-    startCamera();
+    initCamera();
 </script>
 </body>
 </html>
