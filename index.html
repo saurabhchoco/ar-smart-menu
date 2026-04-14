@@ -3,140 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart AR Menu | Hotspot Fix</title>
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+    <title>Partner Portal | RanShX Global</title>
     <style>
-        :root { --primary: #000; --glass: rgba(255, 255, 255, 0.8); --blur: blur(15px); }
-        body { font-family: -apple-system, sans-serif; margin: 0; background: #f4f4f7; }
-        
-        .menu-container { display: grid; gap: 25px; padding: 20px 20px 120px; max-width: 500px; margin: auto; }
-        .menu-item { background: #fff; border-radius: 32px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.06); position: relative; }
-        
-        model-viewer { width: 100%; height: 350px; background-color: #fafafa; }
-
-        /* HOTSPOT FIX: Ensure these are visible and z-indexed correctly */
-        .hotspot {
-            display: block; width: 24px; height: 24px; border-radius: 50%;
-            border: 2px solid #fff; background: var(--primary);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            cursor: pointer; padding: 0; z-index: 100;
+        :root {
+            --primary: #000000;
+            --accent: #c5a059;
+            --bg: #ffffff;
+            --card-bg: #f9f9fb;
         }
 
-        .annotation {
-            visibility: hidden; opacity: 0;
-            background: var(--glass); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
-            border-radius: 12px; padding: 12px; width: 150px;
-            position: absolute; bottom: 35px; left: 50%; transform: translateX(-50%);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.4);
-            transition: all 0.3s ease; pointer-events: none; z-index: 200;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            background-color: var(--bg);
+            color: var(--primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
         }
 
-        /* Show annotation when parent hotspot is active */
-        .hotspot.active .annotation { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(-5px); }
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
 
-        .details { padding: 24px; background: #fff; border-top: 1px solid #f0f0f0; }
-        .ar-button { background: #000; color: #fff; border: none; padding: 12px 24px; border-radius: 50px; font-weight: 600; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); }
+        header h1 {
+            font-weight: 200;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            font-size: 26px;
+            margin: 0;
+        }
+
+        .portal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            width: 100%;
+            max-width: 900px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .portal-card {
+            background: var(--card-bg);
+            border: 1px solid #eee;
+            border-radius: 40px;
+            padding: 45px;
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .portal-card:hover {
+            transform: translateY(-10px);
+            background: #fff;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.08);
+            border-color: var(--accent);
+        }
+
+        .icon-circle {
+            width: 80px;
+            height: 80px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.03);
+            font-size: 32px;
+        }
+
+        .portal-card h2 { font-size: 20px; margin: 0 0 12px 0; font-weight: 600; }
+        .portal-card p { font-size: 14px; color: #666; line-height: 1.6; margin: 0 0 25px 0; }
         
-        /* Admin Overlay */
-        #admin-panel { position: fixed; bottom: 0; width: 100%; background: #fff; border-top: 2px solid #000; z-index: 1000; transform: translateY(85%); transition: 0.4s; }
-        #admin-panel.open { transform: translateY(0); }
-        .admin-toggle { background: #000; color: #fff; padding: 12px; text-align: center; cursor: pointer; font-weight: bold; }
+        .btn-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent);
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 4px;
+        }
+
+        footer {
+            position: absolute;
+            bottom: 30px;
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: #ccc;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
 
-<div id="menu-render-container" class="menu-container"></div>
+    <header>
+        <h1>RanShX Global</h1>
+    </header>
 
-<div id="admin-panel">
-    <div class="admin-toggle" onclick="document.getElementById('admin-panel').classList.toggle('open')">ADMIN DASHBOARD</div>
-    <div style="padding: 20px; max-height: 60vh; overflow-y: auto;">
-        <div id="admin-list"></div>
-        <button onclick="addItem()" style="width:100%; padding:15px; background:green; color:#fff; border:none; border-radius:10px; margin-top:10px;">+ Add New Model</button>
+    <div class="portal-grid">
+        <a href="menu.html" class="portal-card">
+            <div class="icon-circle">🍽️</div>
+            <h2>Smart Menu</h2>
+            <p>Augmented Reality dining experience with real-time stock management and insights.</p>
+            <span class="btn-label">Open Module</span>
+        </a>
+
+        <a href="interior.html" class="portal-card">
+            <div class="icon-circle">🏢</div>
+            <h2>Smart Interior</h2>
+            <p>QSR franchise fit-out designer. Visualize spatial flow and technical infrastructure.</p>
+            <span class="btn-label">Open Designer</span>
+        </a>
     </div>
-</div>
 
-<script>
-    let menuData = JSON.parse(localStorage.getItem('smartMenuData')) || [
-        { id: 'p1', name: "Artisan Margherita", price: "₹545", src: "pizza.glb", kcal: "520", pos: "0m 0.1m 0.05m" },
-        { id: 'b1', name: "Signature Burger", price: "₹620", src: "burger.glb", kcal: "840", pos: "0m 0.15m 0m" }
-    ];
+    <footer>© 2026 Strategic Partner Portal</footer>
 
-    function renderMenu() {
-        const container = document.getElementById('menu-render-container');
-        const adminList = document.getElementById('admin-list');
-        container.innerHTML = '';
-        adminList.innerHTML = '';
-
-        menuData.forEach(item => {
-            // User Side
-            const itemHTML = `
-                <div class="menu-item">
-                    <model-viewer src="${item.src}" ar ar-modes="webxr scene-viewer quick-look" camera-controls shadow-intensity="1" onclick="burstEffect(this)">
-                        
-                        <button class="hotspot" slot="hotspot-${item.id}" data-position="${item.pos}" data-normal="0m 1m 0m" onclick="toggleHotspot(this, event)">
-                            <div class="annotation">
-                                <strong>Nutritional Info</strong><br>
-                                <span>${item.kcal} kcal | Pure Ingredients</span>
-                            </div>
-                        </button>
-
-                        <button slot="ar-button" class="ar-button">VIEW IN AR</button>
-                    </model-viewer>
-                    <div class="details">
-                        <div style="display:flex; justify-content:space-between"><strong>${item.name}</strong> <span>${item.price}</span></div>
-                    </div>
-                </div>
-            `;
-            container.innerHTML += itemHTML;
-
-            // Admin Side
-            adminList.innerHTML += `
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center; border-bottom:1px solid #eee; padding-bottom:10px;">
-                    <span>${item.name}</span>
-                    <button onclick="deleteItem('${item.id}')" style="color:red; border:none; background:none;">Delete</button>
-                </div>
-            `;
-        });
-        localStorage.setItem('smartMenuData', JSON.stringify(menuData));
-    }
-
-    // CRITICAL FIX: Explicitly handle the click and stop propagation
-    function toggleHotspot(el, e) {
-        e.preventDefault();
-        e.stopPropagation(); 
-        
-        // Close other hotspots first for a clean UX
-        document.querySelectorAll('.hotspot').forEach(h => {
-            if(h !== el) h.classList.remove('active');
-        });
-
-        el.classList.toggle('active');
-        
-        if (window.navigator.vibrate) window.navigator.vibrate(15);
-    }
-
-    function burstEffect(viewer) {
-        // Only burst if we didn't click a hotspot
-        viewer.style.transition = "transform 0.1s ease";
-        viewer.style.transform = "scale(1.03)";
-        setTimeout(() => viewer.style.transform = "scale(1)", 100);
-    }
-
-    function deleteItem(id) {
-        menuData = menuData.filter(i => i.id !== id);
-        renderMenu();
-    }
-
-    function addItem() {
-        const name = prompt("Item Name:");
-        const src = prompt("GLB Filename (e.g., chaat.glb):");
-        if(name && src) {
-            menuData.push({ id: 'id'+Date.now(), name: name, price: "₹---", src: src, kcal: "---", pos: "0m 0.1m 0m" });
-            renderMenu();
-        }
-    }
-
-    renderMenu();
-</script>
 </body>
 </html>
