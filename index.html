@@ -3,81 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart AR Menu | Pro System</title>
+    <title>Smart AR Menu | Hotspot Fix</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <style>
-        :root {
-            --primary: #000000;
-            --glass: rgba(255, 255, 255, 0.7);
-            --blur: blur(15px);
-            --border: rgba(255, 255, 255, 0.4);
+        :root { --primary: #000; --glass: rgba(255, 255, 255, 0.8); --blur: blur(15px); }
+        body { font-family: -apple-system, sans-serif; margin: 0; background: #f4f4f7; }
+        
+        .menu-container { display: grid; gap: 25px; padding: 20px 20px 120px; max-width: 500px; margin: auto; }
+        .menu-item { background: #fff; border-radius: 32px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.06); position: relative; }
+        
+        model-viewer { width: 100%; height: 350px; background-color: #fafafa; }
+
+        /* HOTSPOT FIX: Ensure these are visible and z-indexed correctly */
+        .hotspot {
+            display: block; width: 24px; height: 24px; border-radius: 50%;
+            border: 2px solid #fff; background: var(--primary);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            cursor: pointer; padding: 0; z-index: 100;
         }
 
-        body { font-family: -apple-system, sans-serif; margin: 0; background-color: #f4f4f7; color: #1d1d1f; }
-        header { padding: 30px 20px; text-align: center; }
-        header h1 { font-weight: 200; letter-spacing: 4px; font-size: 24px; text-transform: uppercase; }
-
-        .menu-container { display: grid; gap: 25px; padding: 0 20px 100px; max-width: 500px; margin: auto; }
-
-        /* Item Styling */
-        .menu-item { 
+        .annotation {
+            visibility: hidden; opacity: 0;
             background: var(--glass); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
-            border-radius: 32px; overflow: hidden; border: 1px solid var(--border);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.06); position: relative;
+            border-radius: 12px; padding: 12px; width: 150px;
+            position: absolute; bottom: 35px; left: 50%; transform: translateX(-50%);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.4);
+            transition: all 0.3s ease; pointer-events: none; z-index: 200;
         }
-        .menu-item.out-of-stock { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
-        .stock-badge { position: absolute; top: 20px; left: 20px; background: red; color: white; padding: 5px 15px; border-radius: 20px; font-size: 10px; font-weight: bold; z-index: 10; }
 
-        model-viewer { width: 100%; height: 350px; background-color: transparent; }
+        /* Show annotation when parent hotspot is active */
+        .hotspot.active .annotation { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(-5px); }
 
-        .hotspot { background: #fff; border-radius: 50%; width: 22px; height: 22px; border: 2px solid var(--primary); cursor: pointer; transition: transform 0.3s ease; }
-        .annotation { background: var(--glass); backdrop-filter: var(--blur); border-radius: 12px; padding: 12px; width: 140px; position: absolute; top: 30px; left: -60px; opacity: 0; transition: all 0.3s ease; pointer-events: none; font-size: 12px; }
-        .hotspot.active .annotation { opacity: 1; transform: translateY(0); }
-
-        .details { padding: 24px; background: #ffffff; border-top: 1px solid #f0f0f0; }
-        .header-row { display: flex; justify-content: space-between; align-items: flex-start; }
-        .price { font-weight: 700; font-size: 18px; }
-        .category-tag { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: #888; text-transform: uppercase; }
-        .stats-row { display: flex; gap: 15px; border-top: 1px solid #f5f5f5; padding-top: 15px; margin-top: 10px; }
-        .stat span { font-size: 9px; color: #999; display: block; text-transform: uppercase; }
-
-        .ar-button { background: var(--primary); color: #fff; border: none; padding: 12px 24px; border-radius: 50px; font-size: 11px; font-weight: 600; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); }
-
-        /* Admin Panel Styling */
-        #admin-panel { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 2px solid #000; padding: 20px; transform: translateY(90%); transition: 0.4s; z-index: 1000; max-height: 80vh; overflow-y: auto; }
+        .details { padding: 24px; background: #fff; border-top: 1px solid #f0f0f0; }
+        .ar-button { background: #000; color: #fff; border: none; padding: 12px 24px; border-radius: 50px; font-weight: 600; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); }
+        
+        /* Admin Overlay */
+        #admin-panel { position: fixed; bottom: 0; width: 100%; background: #fff; border-top: 2px solid #000; z-index: 1000; transform: translateY(85%); transition: 0.4s; }
         #admin-panel.open { transform: translateY(0); }
-        .admin-toggle { background: #000; color: #fff; padding: 10px; text-align: center; cursor: pointer; border-radius: 10px 10px 0 0; font-weight: bold; }
-        .admin-item-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; align-items: center; }
-        input, select { padding: 8px; border-radius: 5px; border: 1px solid #ddd; }
-        .btn-del { color: red; cursor: pointer; border: none; background: none; font-weight: bold; }
+        .admin-toggle { background: #000; color: #fff; padding: 12px; text-align: center; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<header><h1>The Smart Menu</h1></header>
-
-<div id="menu-render-container" class="menu-container">
-    </div>
+<div id="menu-render-container" class="menu-container"></div>
 
 <div id="admin-panel">
-    <div class="admin-toggle" onclick="document.getElementById('admin-panel').classList.toggle('open')">MENU SETTINGS (CRUD)</div>
-    <div style="padding-top: 20px;">
-        <h3>Manage Items</h3>
+    <div class="admin-toggle" onclick="document.getElementById('admin-panel').classList.toggle('open')">ADMIN DASHBOARD</div>
+    <div style="padding: 20px; max-height: 60vh; overflow-y: auto;">
         <div id="admin-list"></div>
-        <hr>
-        <h3>Add New Item</h3>
-        <input type="text" id="new-name" placeholder="Name">
-        <input type="text" id="new-price" placeholder="Price (e.g. ₹500)">
-        <input type="text" id="new-src" placeholder="Model filename (e.g. burger.glb)">
-        <button onclick="addItem()" style="background:green; color:white; border:none; padding:10px; border-radius:5px; margin-top:10px; width:100%;">Add to Menu</button>
+        <button onclick="addItem()" style="width:100%; padding:15px; background:green; color:#fff; border:none; border-radius:10px; margin-top:10px;">+ Add New Model</button>
     </div>
 </div>
 
 <script>
-    // Initial Data
     let menuData = JSON.parse(localStorage.getItem('smartMenuData')) || [
-        { id: 1, name: "Artisan Margherita", category: "Signature Pizza", price: "₹545", src: "pizza.glb", kcal: "520", prep: "12m", spice: "Mild", inStock: true },
-        { id: 2, name: "Signature Burger", category: "Gourmet Burger", price: "₹620", src: "burger.glb", kcal: "840", prep: "15m", spice: "Med", inStock: true }
+        { id: 'p1', name: "Artisan Margherita", price: "₹545", src: "pizza.glb", kcal: "520", pos: "0m 0.1m 0.05m" },
+        { id: 'b1', name: "Signature Burger", price: "₹620", src: "burger.glb", kcal: "840", pos: "0m 0.15m 0m" }
     ];
 
     function renderMenu() {
@@ -87,70 +68,58 @@
         adminList.innerHTML = '';
 
         menuData.forEach(item => {
-            // Render User View
+            // User Side
             const itemHTML = `
-                <div class="menu-item ${item.inStock ? '' : 'out-of-stock'}">
-                    ${item.inStock ? '' : '<div class="stock-badge">OUT OF STOCK</div>'}
-                    <model-viewer src="${item.src}" ar ar-modes="webxr scene-viewer quick-look" camera-controls shadow-intensity="1.5" exposure="1.2" environment-image="neutral" onclick="burstEffect(this)">
-                        <button class="hotspot" slot="hotspot-${item.id}" data-position="0m 0.1m 0m" onclick="toggleAnnotation(this)">
-                            <div class="annotation"><strong>Nutrients</strong><br><span>${item.kcal} kcal | Freshly Made</span></div>
+                <div class="menu-item">
+                    <model-viewer src="${item.src}" ar ar-modes="webxr scene-viewer quick-look" camera-controls shadow-intensity="1" onclick="burstEffect(this)">
+                        
+                        <button class="hotspot" slot="hotspot-${item.id}" data-position="${item.pos}" data-normal="0m 1m 0m" onclick="toggleHotspot(this, event)">
+                            <div class="annotation">
+                                <strong>Nutritional Info</strong><br>
+                                <span>${item.kcal} kcal | Pure Ingredients</span>
+                            </div>
                         </button>
+
                         <button slot="ar-button" class="ar-button">VIEW IN AR</button>
                     </model-viewer>
                     <div class="details">
-                        <div class="header-row"><span class="category-tag">${item.category}</span><span class="price">${item.price}</span></div>
-                        <h3>${item.name}</h3>
-                        <div class="stats-row">
-                            <div class="stat"><span>Calories</span>${item.kcal} kcal</div>
-                            <div class="stat"><span>Prep</span>${item.prep}</div>
-                            <div class="stat"><span>Spice</span>${item.spice}</div>
-                        </div>
+                        <div style="display:flex; justify-content:space-between"><strong>${item.name}</strong> <span>${item.price}</span></div>
                     </div>
                 </div>
             `;
             container.innerHTML += itemHTML;
 
-            // Render Admin Controls
+            // Admin Side
             adminList.innerHTML += `
-                <div class="admin-item-row">
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center; border-bottom:1px solid #eee; padding-bottom:10px;">
                     <span>${item.name}</span>
-                    <input type="text" value="${item.price}" onchange="updateItem(${item.id}, 'price', this.value)" style="width:60px">
-                    <select onchange="updateItem(${item.id}, 'inStock', this.value === 'true')">
-                        <option value="true" ${item.inStock ? 'selected' : ''}>In Stock</option>
-                        <option value="false" ${!item.inStock ? 'selected' : ''}>Sold Out</option>
-                    </select>
-                    <button class="btn-del" onclick="deleteItem(${item.id})">✕</button>
+                    <button onclick="deleteItem('${item.id}')" style="color:red; border:none; background:none;">Delete</button>
                 </div>
             `;
         });
         localStorage.setItem('smartMenuData', JSON.stringify(menuData));
     }
 
-    // CRUD Functions
-    function updateItem(id, key, value) {
-        const item = menuData.find(i => i.id === id);
-        item[key] = value;
-        renderMenu();
+    // CRITICAL FIX: Explicitly handle the click and stop propagation
+    function toggleHotspot(el, e) {
+        e.preventDefault();
+        e.stopPropagation(); 
+        
+        // Close other hotspots first for a clean UX
+        document.querySelectorAll('.hotspot').forEach(h => {
+            if(h !== el) h.classList.remove('active');
+        });
+
+        el.classList.toggle('active');
+        
+        if (window.navigator.vibrate) window.navigator.vibrate(15);
     }
 
-    function addItem() {
-        const name = document.getElementById('new-name').value;
-        const price = document.getElementById('new-price').value;
-        const src = document.getElementById('new-src').value;
-        if(!name || !src) return alert("Fill details");
-        
-        menuData.push({
-            id: Date.now(),
-            name: name,
-            category: "New Item",
-            price: price,
-            src: src,
-            kcal: "---",
-            prep: "10m",
-            spice: "Med",
-            inStock: true
-        });
-        renderMenu();
+    function burstEffect(viewer) {
+        // Only burst if we didn't click a hotspot
+        viewer.style.transition = "transform 0.1s ease";
+        viewer.style.transform = "scale(1.03)";
+        setTimeout(() => viewer.style.transform = "scale(1)", 100);
     }
 
     function deleteItem(id) {
@@ -158,17 +127,13 @@
         renderMenu();
     }
 
-    // Existing UI Logic
-    function toggleAnnotation(el) {
-        event.stopPropagation();
-        el.classList.toggle('active');
-        if (window.navigator.vibrate) window.navigator.vibrate(12);
-    }
-
-    function burstEffect(viewer) {
-        viewer.style.transition = "transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
-        viewer.style.transform = "scale(1.04)";
-        setTimeout(() => viewer.style.transform = "scale(1)", 100);
+    function addItem() {
+        const name = prompt("Item Name:");
+        const src = prompt("GLB Filename (e.g., chaat.glb):");
+        if(name && src) {
+            menuData.push({ id: 'id'+Date.now(), name: name, price: "₹---", src: src, kcal: "---", pos: "0m 0.1m 0m" });
+            renderMenu();
+        }
     }
 
     renderMenu();
